@@ -3,6 +3,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -69,6 +70,7 @@ func (s *Server) Stop() {
 
 func (s *Server) RegisterRoutes() {
 	s.router.Get("/health", s.handleHealth())
+	s.router.Get("/links/{key}", s.handleGetLink())
 }
 
 func (s *Server) handleHealth() http.HandlerFunc {
@@ -80,4 +82,25 @@ func (s *Server) handleHealth() http.HandlerFunc {
 	)
 
 	return handler.Handler().ServeHTTP
+}
+
+type GetLinkResponse struct {
+	Key string `json:"key"`
+	URL string `json:"url"`
+}
+
+func (s *Server) handleGetLink() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Fake response for now.
+		response := GetLinkResponse{
+			Key: chi.URLParam(r, "key"),
+			URL: "https://chat.openai.com/",
+		}
+
+		// Write response as JSON.
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+
+		json.NewEncoder(w).Encode(response)
+	}
 }

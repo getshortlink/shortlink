@@ -21,7 +21,6 @@ func NewServerCommand() *ServerCommand {
 	}
 
 	c.Command.RunE = c.Run
-
 	return c
 }
 
