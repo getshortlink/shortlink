@@ -1,16 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Hello Extensions",
-  "description": "Base Level Extension",
+  "name": "ShortLink",
   "version": "1.0",
-  "action": {
-    "default_popup": "popup.html"
-  },
-  "permissions": [
-    "activeTab",
-    "scripting"
-  ],
+  "permissions": ["tabs"],
   "background": {
     "service_worker": "background.js"
+  },
+  "omnibox": {
+    "keyword": "go"
   }
 }
