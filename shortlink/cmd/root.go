@@ -39,6 +39,7 @@ func init() {
 	//
 	// Add commands to the root command.
 	//
+	rootCmd.AddCommand(NewServerCommand().Command)
 
 	// Add common flags to the root command.
 	// To access these flags from a child command, you can use the Flags directly or
