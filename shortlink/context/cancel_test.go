@@ -7,8 +7,6 @@ import (
 )
 
 func TestWithSigtermCancel(t *testing.T) {
-	// Ensure that the context is canceled when a SIGTERM is received.
-
 	t.Run("cancel", func(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()

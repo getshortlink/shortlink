@@ -37,13 +37,7 @@ type Server struct {
 func NewServer() (*Server, error) {
 	r := chi.NewRouter()
 
-	// Set a timeout value on the request context (ctx), that will signal
-	// through ctx.Done() that the request has timed out and further
-	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
-
-	// Recover from panics without crashing the server, and log the panic
-	// message.
 	r.Use(middleware.Recoverer)
 
 	s := &Server{
@@ -60,12 +54,10 @@ func NewServer() (*Server, error) {
 	return s, nil
 }
 
-// Start starts the server.
 func (s *Server) Start() error {
 	return s.server.ListenAndServe()
 }
 
-// Stop stops the server.
 func (s *Server) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), ShutdownGracePeriod)
 	defer cancel()
@@ -75,7 +67,6 @@ func (s *Server) Stop() {
 	}
 }
 
-// RegisterRoutes registers the routes for the server.
 func (s *Server) RegisterRoutes() {
 	s.router.Get("/health", s.handleHealth())
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// ServerCommand is the command to run the HTTP server.
 type ServerCommand struct {
 	*cobra.Command
 }
