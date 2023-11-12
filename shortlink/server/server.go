@@ -3,11 +3,11 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/getshortlink/shortlink/server/link"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -42,12 +42,13 @@ func NewServer() (*Server, error) {
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
+		// TODO: Restrict allowed origins.
 		AllowedOrigins:   []string{"https://*", "http://*", "chrome-extension://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
+		MaxAge:           300,
 	}))
 
 	s := &Server{
@@ -59,8 +60,8 @@ func NewServer() (*Server, error) {
 			WriteTimeout: DefaultWriteTimeout,
 		},
 	}
-	s.RegisterRoutes()
 
+	s.setHandlers()
 	return s, nil
 }
 
@@ -77,9 +78,9 @@ func (s *Server) Stop() {
 	}
 }
 
-func (s *Server) RegisterRoutes() {
+func (s *Server) setHandlers() {
 	s.router.Get("/health", s.handleHealth())
-	s.router.Get("/links/{key}", s.handleGetLink())
+	s.router.Mount("/link", link.NewHandler().Router)
 }
 
 func (s *Server) handleHealth() http.HandlerFunc {
@@ -91,25 +92,4 @@ func (s *Server) handleHealth() http.HandlerFunc {
 	)
 
 	return handler.Handler().ServeHTTP
-}
-
-type GetLinkResponse struct {
-	Key string `json:"key"`
-	URL string `json:"url"`
-}
-
-func (s *Server) handleGetLink() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Fake response for now.
-		response := GetLinkResponse{
-			Key: chi.URLParam(r, "key"),
-			URL: "https://chat.openai.com/",
-		}
-
-		// Write response as JSON.
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-
-		json.NewEncoder(w).Encode(response)
-	}
 }
